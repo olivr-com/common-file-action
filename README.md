@@ -21,11 +21,11 @@ uses: olivr-com/common-file-action@v1
 with:
   url: https://your-file.md
 
-  # -You can download the file in a subdirectory
+  # You can download the file in a subdirectory
   path: './subdirectory/'
 
-  # If you want to use this name as the file name to create
-  # defaults to the downloaded file name
+  # Use this name as the file name to create
+  # (defaults to the downloaded file name)
   filename: 'your-new-filename.md'
 
   # Will throw an errror if file content has changed
