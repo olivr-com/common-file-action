@@ -1,6 +1,6 @@
-![tests](https://github.com/olivr-com/common-file-action/workflows/tests/badge.svg)
-
 # Common file action
+
+[![tests](https://github.com/olivr-com/common-file-action/workflows/tests/badge.svg)](https://github.com/olivr-com/common-file-action/actions?query=workflow%3Atests)
 
 GitHub action to add a remote file to the current repo. We use it to maintain an organization-wide central repo with common files such as LICENSE, CONTRIBUTING.md, etc. Other repos sync with the latest versions of those files every time they're built.
 
