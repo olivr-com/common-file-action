@@ -1,21 +1,24 @@
-const core = require('@actions/core');
-const wait = require('./wait');
-
+const core = require('@actions/core')
+const downloadRemoteFile = require('./downloadRemoteFile')
 
 // most @actions toolkit packages have async methods
 async function run() {
-  try { 
-    const ms = core.getInput('milliseconds');
-    console.log(`Waiting ${ms} milliseconds ...`)
+  try {
+    const url = core.getInput('url')
+    const path = core.getInput('path')
+    const overwrite = core.getInput('overwrite')
+    const filename = core.getInput('filename')
 
-    core.debug((new Date()).toTimeString())
-    await wait(parseInt(ms));
-    core.debug((new Date()).toTimeString())
+    const file_changed = await downloadRemoteFile(
+      url,
+      path,
+      overwrite,
+      filename
+    )
 
-    core.setOutput('time', new Date().toTimeString());
-  } 
-  catch (error) {
-    core.setFailed(error.message);
+    core.setOutput('file_changed', file_changed)
+  } catch (error) {
+    core.setFailed(error.message)
   }
 }
 

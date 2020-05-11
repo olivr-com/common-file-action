@@ -1,23 +1,135 @@
-const wait = require('./wait');
-const process = require('process');
-const cp = require('child_process');
-const path = require('path');
+const downloadRemoteFile = require('./downloadRemoteFile')
+const io = require('@actions/io')
+const fs = require('fs')
 
-test('throws invalid number', async() => {
-    await expect(wait('foo')).rejects.toThrow('milleseconds not a number');
-});
+const TEST_DIRECTORY = './.test'
 
-test('wait 500 ms', async() => {
-    const start = new Date();
-    await wait(500);
-    const end = new Date();
-    var delta = Math.abs(end - start);
-    expect(delta).toBeGreaterThan(450);
-});
+test('Setup tests', async () => {
+  await io.mkdirP(TEST_DIRECTORY)
+})
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-    process.env['INPUT_MILLISECONDS'] = 500;
-    const ip = path.join(__dirname, 'index.js');
-    console.log(cp.execSync(`node ${ip}`).toString());
+test('fails if URL is invalid', async () => {
+  await expect(downloadRemoteFile('foo', TEST_DIRECTORY)).rejects.toThrow(
+    'Please ensure your url is a valid http(s) url and ends with an actual file name'
+  )
+})
+
+test('fails if URL is valid but does not end with a file', async () => {
+  await expect(
+    downloadRemoteFile('https://github.com/', TEST_DIRECTORY)
+  ).rejects.toThrow(
+    'Please ensure your url is a valid http(s) url and ends with an actual file name'
+  )
+})
+
+test('fails if URL is valid but does not use http(s)', async () => {
+  await expect(
+    downloadRemoteFile(
+      'ssh://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY
+    )
+  ).rejects.toThrow(
+    'Please ensure your url is a valid http(s) url and ends with an actual file name'
+  )
+})
+
+test('suceed if no file exists already', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY,
+      true
+    )
+  ).accepts
+})
+
+test('suceed when changing the file name', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY,
+      true,
+      'Hello'
+    )
+  ).accepts
+})
+
+test('suceed if file already exists and overwite is set to TRUE and the file content IS the same', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY,
+      true
+    ).then(() => {
+      return downloadRemoteFile(
+        'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+        TEST_DIRECTORY,
+        true
+      )
+    })
+  ).accepts
+})
+
+test('suceed if file already exists and overwite is set to TRUE and the file content IS NOT the same', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY
+    )
+      .then(() => {
+        return fs.renameSync(
+          TEST_DIRECTORY + '/LICENSE',
+          TEST_DIRECTORY + '/README.md'
+        )
+      })
+      .then(() => {
+        return downloadRemoteFile(
+          'https://raw.githubusercontent.com/olivr-com/common-file-action/master/README.md',
+          TEST_DIRECTORY,
+          true
+        )
+      })
+  ).accepts
+})
+
+test('suceed if file already exists and overwite is set to FALSE and the file content IS the same', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY,
+      true
+    ).then(() => {
+      return downloadRemoteFile(
+        'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+        TEST_DIRECTORY,
+        false
+      )
+    })
+  ).accepts
+})
+
+test('fails if file already exists and overwite is set to FALSE and the file content IS NOT the same', async () => {
+  await expect(
+    downloadRemoteFile(
+      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      TEST_DIRECTORY
+    )
+      .then(() => {
+        return fs.renameSync(
+          TEST_DIRECTORY + '/LICENSE',
+          TEST_DIRECTORY + '/package.json'
+        )
+      })
+      .then(() => {
+        return downloadRemoteFile(
+          'https://raw.githubusercontent.com/olivr-com/common-file-action/master/package.json',
+          TEST_DIRECTORY,
+          false
+        )
+      })
+  ).rejects.toThrow('This file already exists and is different')
+})
+
+test('Cleanup tests', async () => {
+  await io.rmRF(TEST_DIRECTORY)
 })

@@ -1,13 +1,21 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Common file action'
+description: 'Add a remote file to the current repo'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  url:
+    description: 'URL of the file you would like to pull'
     required: true
-    default: '1000'
+  path:
+    description: 'Relative path where to copy the remote file'
+    default: './'
+  filename:
+    description: 'File name if you wish to change it (defaults to the downloaded file name)'
+    default: ''
+  overwrite:
+    description: 'Overwrite if this repo already contains a file with the same name. If set to false, this action will fail if at least one of the files already exist and are not the same.'
+    default: true
 outputs:
-  time: # output will be available to future steps 
-    description: 'The message to output'
+  file_changed:
+    description: 'The relative path of the file that has been changed'
 runs:
   using: 'node12'
   main: 'dist/index.js'
