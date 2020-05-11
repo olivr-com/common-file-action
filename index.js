@@ -16,6 +16,8 @@ async function run() {
       filename
     )
 
+    console.log(`File changed: ${file_changed || 'none'}`)
+
     core.setOutput('file_changed', file_changed)
   } catch (error) {
     core.setFailed(error.message)
