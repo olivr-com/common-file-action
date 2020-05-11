@@ -1,5 +1,8 @@
 name: 'Common file action'
 description: 'Add a remote file to the current repo'
+branding:
+  icon: 'file-plus'
+  color: 'white'
 inputs:
   url:
     description: 'URL of the file you would like to pull'
