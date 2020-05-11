@@ -1,74 +1,58 @@
+![tests](https://github.com/olivr-com/common-file-action/workflows/tests/badge.svg)
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+# Common file action
 
-# Create a JavaScript Action
+GitHub action to add a remote file to the current repo. We use it to maintain an organization-wide central repo with common files such as LICENSE, CONTRIBUTING.md, etc. Other repos sync with the latest versions of those files every time they're built.
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+## Usage
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.  
+Simplest example
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+```yaml
+uses: olivr-com/common-file-action@v1
+with:
+  url: https://your-file.md
+```
 
-## Create an action from this template
+Complete example
 
-Click the `Use this Template` and provide the new repo details for your action
+```yaml
+uses: olivr-com/common-file-action@v1
+with:
+  url: https://your-file.md
 
-## Code in Master
+  # -You can download the file in a subdirectory
+  path: './subdirectory/'
 
-Install the dependencies  
+  # If you want to use this name as the file name to create
+  # defaults to the downloaded file name
+  filename: 'your-new-filename.md'
+
+  # Will throw an errror if file content has changed
+  overwrite: false
+```
+
+## Contribute
+
+Checkout the v1 branch
+
+Install the dependencies
+
 ```bash
-$ npm install
+npm install
 ```
 
-Run the tests :heavy_check_mark:  
+Run the tests
+
 ```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
+npm test
 ```
 
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
+### Package for distribution
 
 GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
 
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
+Actions are run from GitHub repos. Packaging the action will create a packaged action in the dist folder.
 
 Run package
 
@@ -81,34 +65,3 @@ Since the packaged index.js is run from the dist folder.
 ```bash
 git add dist
 ```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-$ git checkout -b v1
-$ git commit -a -m "v1 release"
-```
-
-```bash
-$ git push origin v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Usage
-
-You can now consume the action by referencing the v1 branch
-
-```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
