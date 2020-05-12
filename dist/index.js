@@ -416,8 +416,8 @@ let downloadRemoteFile = async function (
       'Please ensure your url is a valid http(s) url and ends with an actual file name'
     )
 
-  const path_parts = path.match(/^\.?\/?(.*)\/?$/)
-  const dir = (path_parts[1] ? path_parts[1] : '.') + '/'
+  const path_parts = path.match(/^((\.?\/)|\/)?(.*)\/?$/)
+  const dir = (path_parts[3] ? path_parts[3].replace(/\/$/, '') : '.') + '/'
   const new_filename = dir + (filename ? filename : url_parts[2])
 
   return await fetch(url)

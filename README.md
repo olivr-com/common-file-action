@@ -1,36 +1,39 @@
-# Common file action
+# Download file action
 
-[![tests](https://github.com/olivr-com/common-file-action/workflows/tests/badge.svg)](https://github.com/olivr-com/common-file-action/actions?query=workflow%3Atests)
+[![tests](https://github.com/olivr-com/download-file-action/workflows/tests/badge.svg)](https://github.com/olivr-com/download-file-action/actions?query=workflow%3Atests)
 
-GitHub action to add a remote file to the current repo. We use it to maintain an organization-wide central repo with common files such as LICENSE, CONTRIBUTING.md, etc. Other repos sync with the latest versions of those files every time they're built.
+GitHub action to download a remote file to the current repo.
+
+We use it to maintain an organization-wide central repo with common files such as LICENSE, CONTRIBUTING.md, etc. Other repos sync with the latest versions of those files every time they're built.
 
 ## Usage
 
-Simplest example
+> This action doesn't commit the file. You can use [another action](https://github.com/marketplace?query=commit&type=actions) to do so.
+
+### Simple example
+
+Download the file `http://test.com/CONTRIBUTING.md` to this repo.
 
 ```yaml
-uses: olivr-com/common-file-action@v1
+uses: olivr-com/download-file-action@v1
 with:
-  url: https://your-file.md
+  url: http://test.com/CONTRIBUTING.md
 ```
 
-Complete example
+### Complete example
+
+Download the file `http://test.com/CONTRIBUTING.md` in the `docs` directory of this repo and name it `CONTRIBUTE`.
 
 ```yaml
-uses: olivr-com/common-file-action@v1
+uses: olivr-com/download-file-action@v1
 with:
-  url: https://your-file.md
-
-  # You can download the file in a subdirectory
-  path: './subdirectory/'
-
-  # Use this name as the file name to create
-  # (defaults to the downloaded file name)
-  filename: 'your-new-filename.md'
-
-  # Will throw an errror if file content has changed
-  overwrite: false
+  url: http://test.com/CONTRIBUTING.md
+  path: './docs/'
+  filename: 'CONTRIBUTE'
+  overwrite: true
 ```
+
+> Set overwrite to false to throw an error in case the remote file is not the same of a local file
 
 ## Contribute
 

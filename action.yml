@@ -1,11 +1,11 @@
-name: 'Common file action'
-description: 'Add a remote file to the current repo'
+name: 'Download file action'
+description: 'Download a remote file to the current repo.'
 branding:
   icon: 'file-plus'
   color: 'white'
 inputs:
   url:
-    description: 'URL of the file you would like to pull'
+    description: 'URL of the file you would like to download'
     required: true
   path:
     description: 'Relative path where to copy the remote file'
@@ -18,7 +18,7 @@ inputs:
     default: true
 outputs:
   file_changed:
-    description: 'The relative path of the file that has been changed'
+    description: 'Relative path of the file that has been changed'
 runs:
   using: 'node12'
   main: 'dist/index.js'

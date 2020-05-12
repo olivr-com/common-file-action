@@ -1,135 +1,118 @@
+require('jest-fetch-mock').enableMocks()
 const downloadRemoteFile = require('./downloadRemoteFile')
 const io = require('@actions/io')
-const fs = require('fs')
 
-const TEST_DIRECTORY = './.test'
+const TEST_DIRECTORY = '.test'
+const TEST_TARGET = TEST_DIRECTORY + '/support.md'
 
-test('Setup tests', async () => {
-  await io.mkdirP(TEST_DIRECTORY)
-})
+beforeAll(() => io.mkdirP(TEST_DIRECTORY))
 
-test('fails if URL is invalid', async () => {
-  await expect(downloadRemoteFile('foo', TEST_DIRECTORY)).rejects.toThrow(
-    'Please ensure your url is a valid http(s) url and ends with an actual file name'
-  )
-})
+beforeEach(() => fetch.mockResponse('hello world'))
 
-test('fails if URL is valid but does not end with a file', async () => {
-  await expect(
-    downloadRemoteFile('https://github.com/', TEST_DIRECTORY)
+test('fails if URL is invalid', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('test.com/file.md', TEST_DIRECTORY)
   ).rejects.toThrow(
     'Please ensure your url is a valid http(s) url and ends with an actual file name'
   )
 })
 
-test('fails if URL is valid but does not use http(s)', async () => {
-  await expect(
-    downloadRemoteFile(
-      'ssh://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-      TEST_DIRECTORY
-    )
+test('fails if URL is valid but does not end with a file', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('http://test.com/', TEST_DIRECTORY)
   ).rejects.toThrow(
     'Please ensure your url is a valid http(s) url and ends with an actual file name'
   )
 })
 
-test('suceed if no file exists already', async () => {
-  await expect(
-    downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-      TEST_DIRECTORY,
-      true
-    )
-  ).accepts
+test('fails if URL is valid but does not use http(s)', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('ftp://test.com/file.md', TEST_DIRECTORY)
+  ).rejects.toThrow(
+    'Please ensure your url is a valid http(s) url and ends with an actual file name'
+  )
 })
 
-test('suceed when changing the file name', async () => {
-  await expect(
+test('succeeds if no file exists already', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('http://test.com/support.md', TEST_DIRECTORY, true)
+  ).resolves.toEqual(TEST_TARGET)
+})
+
+test('succeeds when changing the file name', () => {
+  expect.assertions(1)
+  return expect(
     downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      'http://test.com/support.md',
       TEST_DIRECTORY,
       true,
-      'Hello'
+      'hello.md'
     )
-  ).accepts
+  ).resolves.toEqual(TEST_DIRECTORY + '/hello.md')
 })
 
-test('suceed if file already exists and overwite is set to TRUE and the file content IS the same', async () => {
-  await expect(
+test('succeeds if file already exists and overwite is set to TRUE and the file content IS the same', () => {
+  expect.assertions(1)
+  return expect(
     downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
+      'http://test.com/support.md',
       TEST_DIRECTORY,
       true
-    ).then(() => {
-      return downloadRemoteFile(
-        'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-        TEST_DIRECTORY,
-        true
-      )
-    })
-  ).accepts
+    ).then(() =>
+      downloadRemoteFile('http://test.com/support.md', TEST_DIRECTORY, true)
+    )
+  ).resolves.toEqual('')
 })
 
-test('suceed if file already exists and overwite is set to TRUE and the file content IS NOT the same', async () => {
-  await expect(
-    downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-      TEST_DIRECTORY
-    )
-      .then(() => {
-        return fs.renameSync(
-          TEST_DIRECTORY + '/LICENSE',
-          TEST_DIRECTORY + '/README.md'
-        )
-      })
-      .then(() => {
+test('succeeds if file already exists and overwite is set to TRUE and the file content IS NOT the same', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('http://test.com/support.md', TEST_DIRECTORY).then(
+      () => {
+        fetch.mockResponse('bye world')
         return downloadRemoteFile(
-          'https://raw.githubusercontent.com/olivr-com/common-file-action/master/README.md',
+          'http://test.com/support.md',
           TEST_DIRECTORY,
           true
         )
-      })
-  ).accepts
-})
-
-test('suceed if file already exists and overwite is set to FALSE and the file content IS the same', async () => {
-  await expect(
-    downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-      TEST_DIRECTORY,
-      true
-    ).then(() => {
-      return downloadRemoteFile(
-        'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-        TEST_DIRECTORY,
-        false
-      )
-    })
-  ).accepts
-})
-
-test('fails if file already exists and overwite is set to FALSE and the file content IS NOT the same', async () => {
-  await expect(
-    downloadRemoteFile(
-      'https://raw.githubusercontent.com/olivr-com/common-file-action/master/LICENSE',
-      TEST_DIRECTORY
+      }
     )
-      .then(() => {
-        return fs.renameSync(
-          TEST_DIRECTORY + '/LICENSE',
-          TEST_DIRECTORY + '/package.json'
-        )
-      })
-      .then(() => {
+  ).resolves.toEqual(TEST_TARGET)
+})
+
+test('succeeds if file already exists and overwite is set to FALSE and the file content IS the same', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('http://test.com/support.md', TEST_DIRECTORY, true).then(
+      () => {
         return downloadRemoteFile(
-          'https://raw.githubusercontent.com/olivr-com/common-file-action/master/package.json',
+          'http://test.com/support.md',
           TEST_DIRECTORY,
           false
         )
-      })
+      }
+    )
+  ).resolves.toEqual('')
+})
+
+test('fails if file already exists and overwite is set to FALSE and the file content IS NOT the same', () => {
+  expect.assertions(1)
+  return expect(
+    downloadRemoteFile('http://test.com/support.md', TEST_DIRECTORY).then(
+      () => {
+        fetch.mockResponse('bye world')
+        return downloadRemoteFile(
+          'http://test.com/support.md',
+          TEST_DIRECTORY,
+          false
+        )
+      }
+    )
   ).rejects.toThrow('This file already exists and is different')
 })
 
-test('Cleanup tests', async () => {
-  await io.rmRF(TEST_DIRECTORY)
-})
+afterAll(() => io.rmRF(TEST_DIRECTORY))
