@@ -1,7 +1,20 @@
-name: 'tests'
-on: push
+name: 'Github Action'
+on:
+  push:
+  pull_request:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm run package
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4.1.6
+        with:
+          commit_message: Update build
+          branch: ${{ github.head_ref }}
+
   # unit tests
   units:
     runs-on: ubuntu-latest
@@ -12,6 +25,7 @@ jobs:
 
   # test action works running from the graph
   test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
