@@ -15,6 +15,13 @@ jobs:
       - name: Build
         run: npm run package
 
+      - name: Commit build
+        uses: stefanzweifel/git-auto-commit-action@v4.1.6
+        with:
+          file_pattern: dist/index.js
+          commit_message: Update build
+          branch: ${{ github.head_ref }}
+
       - name: Unit tests
         run: npm test
 
@@ -22,10 +29,3 @@ jobs:
         uses: ./
         with:
           url: https://raw.githubusercontent.com/olivr-com/download-file-action/master/LICENSE
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4.1.6
-        with:
-          file_pattern: dist/index.js
-          commit_message: Update build
-          branch: ${{ github.head_ref }}
