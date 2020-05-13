@@ -4,15 +4,6 @@ on:
   pull_request:
 
 jobs:
-  # unit tests
-  units:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm ci
-      - run: npm test
-
-  # test action works running from the graph
   build:
     runs-on: ubuntu-latest
     steps:
@@ -24,12 +15,17 @@ jobs:
       - name: Build
         run: npm run package
 
+      - name: Unit tests
+        run: npm test
+
+      - name: E2E test
+        uses: ./
+        with:
+          url: https://raw.githubusercontent.com/olivr-com/download-file-action/master/LICENSE
+
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4.1.6
         with:
+          file_pattern: dist/index.js
           commit_message: Update build
           branch: ${{ github.head_ref }}
-
-      - uses: ./
-        with:
-          url: https://raw.githubusercontent.com/olivr-com/download-file-action/master/LICENSE
