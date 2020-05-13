@@ -4,19 +4,6 @@ on:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm ci
-      - run: npm run package
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4.1.6
-        with:
-          commit_message: Update build
-          branch: ${{ github.head_ref }}
-
   # unit tests
   units:
     runs-on: ubuntu-latest
@@ -26,11 +13,23 @@ jobs:
       - run: npm test
 
   # test action works running from the graph
-  test:
-    needs: build
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run package
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4.1.6
+        with:
+          commit_message: Update build
+          branch: ${{ github.head_ref }}
+
       - uses: ./
         with:
           url: https://raw.githubusercontent.com/olivr-com/download-file-action/master/LICENSE
